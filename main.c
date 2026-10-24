@@ -15,6 +15,7 @@ int main(void)
     MIUI_Theme theme = {
         .background_color = MIUI_RGBA(0x262626ff),
         .text_color = MIUI_RGBA(0xbababaff),
+        .border_color = MIUI_RGBA(0xffffffff),
         .button_normal_color = MIUI_RGBA(0x484848ff),
         .button_hover_color = MIUI_RGBA(0xff5fafff),
         .button_text_color = MIUI_RGBA(0xffffffff),
@@ -24,6 +25,7 @@ int main(void)
         .entry_cursor_color = MIUI_RGBA(0xff5fafff),
         .spacing = 30,
         .entry_cursor_width = 2,
+        .border_width = 1,
     };
 
     MIUI_Entry entry = {0};

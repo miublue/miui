@@ -20,6 +20,7 @@
 typedef struct MIUI_Theme {
     Color background_color;
     Color text_color;
+    Color border_color;
     Color button_normal_color;
     Color button_hover_color;
     Color button_text_color;
@@ -29,6 +30,7 @@ typedef struct MIUI_Theme {
     Color entry_cursor_color;
     Font font;
     float font_size, font_spacing, spacing, entry_cursor_width;
+    int border_width;
 } MIUI_Theme;
 
 typedef struct MIUI_Entry {
@@ -104,6 +106,7 @@ int MIUI_Button(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlign
     pos = (Vector2) { rec.x, rec.y };
     const int hover = CheckCollisionPointRec(GetMousePosition(), btn);
     DrawRectangleRec(btn, hover? theme->button_hover_color : theme->button_normal_color);
+    if (theme->border_width) DrawRectangleLinesEx(btn, theme->border_width, theme->border_color);
     DrawTextEx(theme->font, text, pos, theme->font_size, theme->font_spacing, theme->button_text_color);
     return hover && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT));
 }
@@ -121,6 +124,7 @@ int MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_Tex
     const int hover = CheckCollisionPointRec(GetMousePosition(), btn);
     const int click = IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
     DrawRectangleRec(btn, hover? theme->entry_hover_color : theme->entry_normal_color);
+    if (theme->border_width) DrawRectangleLinesEx(btn, theme->border_width, theme->border_color);
     if (click) entry->is_selected = hover;
     if (!entry->is_selected) goto end;
     const int chr = GetCharPressed();
