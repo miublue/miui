@@ -49,7 +49,7 @@ int MIUI_LoadFont(MIUI_Theme *theme, const char *path, float size, float spacing
 void MIUI_UnloadFont(MIUI_Theme *theme);
 Rectangle MIUI_GetAlignment(MIUI_Theme *theme, Rectangle rec, MIUI_TextAlignment align);
 Rectangle MIUI_GetTextAlignment(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
-void MIUI_DrawText(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
+void MIUI_Text(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
 int MIUI_Button(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
 int MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_TextAlignment align);
 
@@ -87,7 +87,7 @@ Rectangle MIUI_GetTextAlignment(MIUI_Theme *theme, const char *text, Vector2 pos
     return MIUI_GetAlignment(theme, (Rectangle) { pos.x, pos.y, sz.x, sz.y }, align);
 }
 
-void MIUI_DrawText(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align)
+void MIUI_Text(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align)
 {
     const Rectangle rec = MIUI_GetTextAlignment(theme, text, pos, align);
     pos = (Vector2) { rec.x, rec.y };

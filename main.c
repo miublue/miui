@@ -47,7 +47,7 @@ int main(void)
         const Vector2 btn_pos = { center.x - theme.spacing/2, center.y };
         const Rectangle ent_pos = { center.x, center.y + theme.font_size + theme.spacing*2, 300, theme.font_size };
 
-        MIUI_DrawText(&theme, text, txt_pos, MIUI_ALIGN_LEFT);
+        MIUI_Text(&theme, text, txt_pos, MIUI_ALIGN_LEFT);
 
         if (MIUI_Button(&theme, "Click me!", btn_pos, MIUI_ALIGN_RIGHT)) {
             snprintf(text, sizeof(text), "Clicked %d times!", ++num_clicks);
