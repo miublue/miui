@@ -28,6 +28,7 @@ int main(void)
         .border_width = 1,
     };
 
+    fprintf(stdout, "MIUI VERSION %s\n", MIUI_VERSION);
     MIUI_Entry entry = {0};
 
     if (MIUI_LoadFont(&theme, FONT_PATH, FONT_SIZE, FONT_SPACING) != 0) {

@@ -6,6 +6,8 @@
 #include <string.h>
 #include <raylib.h>
 
+#define MIUI_VERSION "0.0.1"
+
 #ifndef MIUI_MAX_ENTRY_SIZE
 #define MIUI_MAX_ENTRY_SIZE 1024
 #endif
@@ -44,6 +46,12 @@ typedef enum MIUI_TextAlignment {
     MIUI_ALIGN_CENTER,
     MIUI_ALIGN_RIGHT
 } MIUI_TextAlignment;
+
+/*
+ * TODO: Menu window with the UI elements rendered within.
+ * TODO: Auto layouts (position UI elements automatically without overlapping).
+ * TODO: Scrollbars (requires menus).
+ */
 
 int MIUI_LoadFont(MIUI_Theme *theme, const char *path, float size, float spacing);
 void MIUI_UnloadFont(MIUI_Theme *theme);
