@@ -70,7 +70,7 @@ int MIUI_LoadFont(MIUI_Theme *theme, const char *path, float size, float spacing
 {
     theme->font = LoadFontEx(path, size, NULL, 0);
     theme->font_size = size, theme->font_spacing = spacing;
-    return !IsFontValid(theme->font);
+    return IsFontValid(theme->font);
 }
 
 void MIUI_UnloadFont(MIUI_Theme *theme)

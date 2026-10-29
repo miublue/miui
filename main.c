@@ -31,7 +31,7 @@ int main(void)
     fprintf(stdout, "MIUI VERSION %s\n", MIUI_VERSION);
     MIUI_Entry entry = {0};
 
-    if (MIUI_LoadFont(&theme, FONT_PATH, FONT_SIZE, FONT_SPACING) != 0) {
+    if (!MIUI_LoadFont(&theme, FONT_PATH, FONT_SIZE, FONT_SPACING)) {
         fprintf(stderr, "ERROR: Failed to load font: %s\n", FONT_PATH);
         goto end;
     }
