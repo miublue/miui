@@ -55,7 +55,7 @@ int main(void)
         }
 
         if (MIUI_TextEntry(&theme, &entry, ent_pos, MIUI_ALIGN_CENTER)) {
-            snprintf(text, sizeof(text), "Entry text: \"%s\"", entry.text);
+            snprintf(text, sizeof(text), "Entry text: \"%.*s\"", (int)entry.text_size, entry.text);
         }
 
         EndDrawing();
