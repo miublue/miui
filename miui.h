@@ -39,7 +39,7 @@ typedef struct MIUI_Theme {
 
 typedef struct MIUI_Entry {
     size_t cursor, text_size;
-    int is_selected;
+    bool is_selected;
     char text[MIUI_MAX_ENTRY_SIZE];
 } MIUI_Entry;
 
@@ -114,7 +114,7 @@ bool MIUI_Button(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlig
         rec.height + theme->spacing
     };
     pos = (Vector2) { rec.x, rec.y };
-    const int hover = CheckCollisionPointRec(GetMousePosition(), btn);
+    const bool hover = CheckCollisionPointRec(GetMousePosition(), btn);
     DrawRectangleRec(btn, hover? theme->button_hover_color : theme->button_normal_color);
     if (theme->border_width) DrawRectangleLinesEx(btn, theme->border_width, theme->border_color);
     DrawTextEx(theme->font, text, pos, theme->font_size, theme->font_spacing, theme->button_text_color);
@@ -131,57 +131,55 @@ bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_Te
         rec.width + theme->spacing,
         rec.height + theme->spacing
     };
-    const int hover = CheckCollisionPointRec(GetMousePosition(), btn);
-    const int click = IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
+    const bool hover = CheckCollisionPointRec(GetMousePosition(), btn);
+    const bool click = IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT);
     DrawRectangleRec(btn, hover? theme->entry_hover_color : theme->entry_normal_color);
     if (theme->border_width) DrawRectangleLinesEx(btn, theme->border_width, theme->border_color);
     if (click) entry->is_selected = hover;
-    if (!entry->is_selected) goto end;
-    const int chr = GetCharPressed();
-    if (!chr) {
-        const int key = GetKeyPressed();
-        switch (key) {
-        case KEY_ENTER:
-            entry->is_selected = 0;
-            return true;
-        case KEY_LEFT:
-            if (entry->cursor > 0) --entry->cursor;
-            break;
-        case KEY_RIGHT:
-            if (entry->cursor < entry->text_size) ++entry->cursor;
-            break;
-        case KEY_UP: case KEY_HOME:
-            entry->cursor = 0;
-            break;
-        case KEY_DOWN: case KEY_END:
-            entry->cursor = entry->text_size;
-            break;
-        case KEY_BACKSPACE:
-            if (entry->cursor == 0 || entry->text_size == 0) break;
-            --entry->cursor;
-            /* FALLTHROUGH */
-        case KEY_DELETE:
-            if (entry->cursor == entry->text_size) break;
-            memmove(entry->text+entry->cursor, entry->text+entry->cursor+1, entry->text_size-entry->cursor);
-            --entry->text_size;
-            break;
-        default: break;
+    if (entry->is_selected) {
+        const int chr = GetCharPressed();
+        if (!chr) {
+            const int key = GetKeyPressed();
+            switch (key) {
+            case KEY_ENTER:
+                entry->is_selected = 0;
+                return true;
+            case KEY_LEFT:
+                if (entry->cursor > 0) --entry->cursor;
+                break;
+            case KEY_RIGHT:
+                if (entry->cursor < entry->text_size) ++entry->cursor;
+                break;
+            case KEY_UP: case KEY_HOME:
+                entry->cursor = 0;
+                break;
+            case KEY_DOWN: case KEY_END:
+                entry->cursor = entry->text_size;
+                break;
+            case KEY_BACKSPACE:
+                if (entry->cursor == 0 || entry->text_size == 0) break;
+                --entry->cursor;
+                /* FALLTHROUGH */
+            case KEY_DELETE:
+                if (entry->cursor == entry->text_size) break;
+                memmove(entry->text+entry->cursor, entry->text+entry->cursor+1, entry->text_size-entry->cursor);
+                --entry->text_size;
+                break;
+            default: break;
+            }
+        } else {
+            memmove(entry->text+entry->cursor+1, entry->text+entry->cursor, entry->text_size-entry->cursor);
+            entry->text[entry->cursor++] = (char)chr;
+            entry->text[++entry->text_size] = 0;
         }
-    } else {
-        memmove(entry->text+entry->cursor+1, entry->text+entry->cursor, entry->text_size-entry->cursor);
-        entry->text[entry->cursor++] = (char)chr;
-        entry->text[++entry->text_size] = 0;
     }
-end:
-    {
-        Rectangle cursor_pos = { rec.x, rec.y, theme->entry_cursor_width, rec.height };
-        if (entry->text_size) {
-            char text[MIUI_MAX_ENTRY_SIZE];
-            snprintf(text, sizeof(text), "%.*s", (int)entry->cursor, entry->text);
-            cursor_pos.x += MeasureTextEx(theme->font, text, theme->font_size, theme->font_spacing).x;
-        }
-        if (entry->is_selected) DrawRectangleRec(cursor_pos, theme->entry_cursor_color);
+    Rectangle cursor_pos = { rec.x, rec.y, theme->entry_cursor_width, rec.height };
+    if (entry->text_size) {
+        char text[MIUI_MAX_ENTRY_SIZE];
+        snprintf(text, sizeof(text), "%.*s", (int)entry->cursor, entry->text);
+        cursor_pos.x += MeasureTextEx(theme->font, text, theme->font_size, theme->font_spacing).x;
     }
+    if (entry->is_selected) DrawRectangleRec(cursor_pos, theme->entry_cursor_color);
     const Vector2 pos = { rec.x, rec.y };
     DrawTextEx(theme->font, entry->text, pos, theme->font_size, theme->font_spacing, theme->entry_text_color);
     return false;

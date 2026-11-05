@@ -33,7 +33,7 @@ int main(void)
 
     if (!MIUI_LoadFont(&theme, FONT_PATH, FONT_SIZE, FONT_SPACING)) {
         fprintf(stderr, "ERROR: Failed to load font: %s\n", FONT_PATH);
-        goto end;
+        return 1;
     }
 
     char text[100] = "No clicks yet...";
@@ -43,7 +43,7 @@ int main(void)
         BeginDrawing();
         ClearBackground(theme.background_color);
 
-        const Vector2 center = { GetScreenWidth()/2, GetScreenHeight()/2 };
+        const Vector2 center = { (float)GetScreenWidth()/2, (float)GetScreenHeight()/2 };
         const Vector2 txt_pos = { center.x + theme.spacing/2, center.y };
         const Vector2 btn_pos = { center.x - theme.spacing/2, center.y };
         const Rectangle ent_pos = { center.x, center.y + theme.font_size + theme.spacing*2, 300, theme.font_size };
@@ -61,7 +61,6 @@ int main(void)
         EndDrawing();
     }
 
-end:
     MIUI_UnloadFont(&theme);
     CloseWindow();
     return 0;
