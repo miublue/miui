@@ -29,7 +29,7 @@ int main(void)
     };
 
     fprintf(stdout, "MIUI VERSION %s\n", MIUI_VERSION);
-    MIUI_Entry entry = {0};
+    MIUI_Entry entry = { .width = 300 };
 
     if (!MIUI_LoadFont(&theme, FONT_PATH, FONT_SIZE, FONT_SPACING)) {
         fprintf(stderr, "ERROR: Failed to load font: %s\n", FONT_PATH);
@@ -46,7 +46,7 @@ int main(void)
         const Vector2 center = { (float)GetScreenWidth()/2, (float)GetScreenHeight()/2 };
         const Vector2 txt_pos = { center.x + theme.spacing/2, center.y };
         const Vector2 btn_pos = { center.x - theme.spacing/2, center.y };
-        const Rectangle ent_pos = { center.x, center.y + theme.font_size + theme.spacing*2, 300, theme.font_size };
+        const Vector2 ent_pos = { center.x, center.y + theme.font_size + theme.spacing*2 };
 
         MIUI_Text(&theme, text, txt_pos, MIUI_ALIGN_LEFT);
 

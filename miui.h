@@ -8,10 +8,18 @@
 #include <string.h>
 #include <raylib.h>
 
-#define MIUI_VERSION "0.0.2"
+#define MIUI_VERSION "0.0.3"
 
 #ifndef MIUI_MAX_ENTRY_SIZE
 #define MIUI_MAX_ENTRY_SIZE 1024
+#endif
+
+#ifndef MIUI_MIN_ENTRY_WIDTH
+#define MIUI_MIN_ENTRY_WIDTH 100
+#endif
+
+#ifndef MAX
+#define MAX(a,b) ((a) > (b)? (a) : (b))
 #endif
 
 #define MIUI_RGBA(V) (Color) { \
@@ -38,7 +46,7 @@ typedef struct MIUI_Theme {
 } MIUI_Theme;
 
 typedef struct MIUI_Entry {
-    size_t cursor, text_size;
+    size_t cursor, text_size, width;
     bool is_selected;
     char text[MIUI_MAX_ENTRY_SIZE];
 } MIUI_Entry;
@@ -61,7 +69,7 @@ Rectangle MIUI_GetAlignment(Rectangle rec, MIUI_TextAlignment align);
 Rectangle MIUI_GetTextAlignment(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
 void MIUI_Text(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
 bool MIUI_Button(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlignment align);
-bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_TextAlignment align);
+bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Vector2 pos, MIUI_TextAlignment align);
 
 #endif
 
@@ -121,10 +129,16 @@ bool MIUI_Button(MIUI_Theme *theme, const char *text, Vector2 pos, MIUI_TextAlig
     return hover && (IsMouseButtonPressed(MOUSE_BUTTON_LEFT) || IsMouseButtonPressed(MOUSE_BUTTON_RIGHT));
 }
 
-bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_TextAlignment align)
+bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Vector2 pos, MIUI_TextAlignment align)
 {
     /* TODO: move cursor to the mouse position if mouse button pressed and is_selected == true */
-    rec = MIUI_GetAlignment(rec, align);
+    const Vector2 sz = MeasureTextEx(theme->font, entry->text, theme->font_size, theme->font_spacing);
+    Rectangle rec = MIUI_GetAlignment((Rectangle) {
+            pos.x,
+            pos.y,
+            MAX(MAX(entry->width, sz.x), MIUI_MIN_ENTRY_WIDTH),
+            theme->font_size
+    }, align);
     const Rectangle btn = {
         rec.x - theme->spacing/2,
         rec.y - theme->spacing/2,
@@ -139,33 +153,28 @@ bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_Te
     if (entry->is_selected) {
         const int chr = GetCharPressed();
         if (!chr) {
-            const int key = GetKeyPressed();
-            switch (key) {
-            case KEY_ENTER:
+            if (IsKeyPressed(KEY_ENTER)) {
                 entry->is_selected = 0;
                 return true;
-            case KEY_LEFT:
+            } else if (IsKeyPressed(KEY_LEFT) || IsKeyPressedRepeat(KEY_LEFT)) {
                 if (entry->cursor > 0) --entry->cursor;
-                break;
-            case KEY_RIGHT:
+            } else if (IsKeyPressed(KEY_RIGHT) || IsKeyPressedRepeat(KEY_RIGHT)) {
                 if (entry->cursor < entry->text_size) ++entry->cursor;
-                break;
-            case KEY_UP: case KEY_HOME:
+            } else if (IsKeyPressed(KEY_BACKSPACE) || IsKeyPressedRepeat(KEY_BACKSPACE)) {
+                if (entry->cursor > 0 && entry->text_size > 0) {
+                    --entry->cursor;
+                    memmove(entry->text+entry->cursor, entry->text+entry->cursor+1, entry->text_size-entry->cursor);
+                    entry->text[--entry->text_size] = 0;
+                }
+            } else if (IsKeyPressed(KEY_DELETE) || IsKeyPressedRepeat(KEY_DELETE)) {
+                if (entry->cursor < entry->text_size) {
+                    memmove(entry->text+entry->cursor, entry->text+entry->cursor+1, entry->text_size-entry->cursor);
+                    entry->text[--entry->text_size] = 0;
+                }
+            } else if (IsKeyPressed(KEY_UP) || IsKeyPressed(KEY_HOME)) {
                 entry->cursor = 0;
-                break;
-            case KEY_DOWN: case KEY_END:
+            } else if (IsKeyPressed(KEY_DOWN) || IsKeyPressed(KEY_END)) {
                 entry->cursor = entry->text_size;
-                break;
-            case KEY_BACKSPACE:
-                if (entry->cursor == 0 || entry->text_size == 0) break;
-                --entry->cursor;
-                /* FALLTHROUGH */
-            case KEY_DELETE:
-                if (entry->cursor == entry->text_size) break;
-                memmove(entry->text+entry->cursor, entry->text+entry->cursor+1, entry->text_size-entry->cursor);
-                --entry->text_size;
-                break;
-            default: break;
             }
         } else {
             memmove(entry->text+entry->cursor+1, entry->text+entry->cursor, entry->text_size-entry->cursor);
@@ -180,8 +189,7 @@ bool MIUI_TextEntry(MIUI_Theme *theme, MIUI_Entry *entry, Rectangle rec, MIUI_Te
         cursor_pos.x += MeasureTextEx(theme->font, text, theme->font_size, theme->font_spacing).x;
     }
     if (entry->is_selected) DrawRectangleRec(cursor_pos, theme->entry_cursor_color);
-    const Vector2 pos = { rec.x, rec.y };
-    DrawTextEx(theme->font, entry->text, pos, theme->font_size, theme->font_spacing, theme->entry_text_color);
+    DrawTextEx(theme->font, entry->text, (Vector2) { rec.x, rec.y }, theme->font_size, theme->font_spacing, theme->entry_text_color);
     return false;
 }
 
